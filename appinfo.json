@@ -1,25 +1,22 @@
 {
-    "appKeys": {},
-    "capabilities": [
-        ""
-    ],
-    "companyName": "dave.albert@gmail.com",
-    "longName": "HelloWorld",
-    "projectType": "native",
-    "resources": {
-        "media": [
-            {
-                "file": "images/menu_icon.png",
-                "name": "IMAGE_MENU_ICON",
-                "type": "png"
-            }
-        ]
-    },
-    "sdkVersion": "3",
-    "shortName": "HelloWorld",
-    "uuid": "1f313173-2c8f-49cc-8daf-1667aa5fcf5f",
-    "versionLabel": "1.0",
-    "watchapp": {
-        "watchface": false
-    }
+   "appKeys": {},
+   "capabilities": [""],
+   "companyName": "dave.albert@gmail.com",
+   "longName": "HelloWorld",
+   "projectType": "native",
+   "resources": {
+      "media": [{
+         "menuIcon": true,
+         "type": "png",
+         "name": "IMAGE_MENU_ICON",
+         "file": "images/menu_icon.png"
+      }]
+   },
+   "sdkVersion": "3",
+   "shortName": "HelloWorld",
+   "uuid": "1f313173-2c8f-49cc-8daf-1667aa5fcf5f",
+   "versionLabel": "1.0",
+   "watchapp": {
+      "watchface": false
+   }
 }
