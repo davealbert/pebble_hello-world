@@ -7,6 +7,13 @@ TextLayer *text_layer2;
 TextLayer *text_layer3;
 TextLayer *text_layer4;
 
+char location_buffer[64];
+
+enum {
+  KEY_LOCATION = 0,
+  KEY_TEMPERATURE = 1,
+};
+
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
    text_layer_set_text(text_layer4, "Select");
 }
@@ -25,9 +32,56 @@ static void click_config_provider(void *context) {
    window_single_click_subscribe(BUTTON_ID_DOWN, down_click_handler);
 }
 
+void process_tuple(Tuple *t){
+   //Get key
+   int key = t->key;
+
+   //Get integer value, if present
+   int value = t->value->int32;
+
+   //Get string value, if present
+   char string_value[32];
+
+   //Get string value, if present
+   strcpy(string_value, t->value->cstring);
+
+   //Decide what to do
+   switch(key) {
+      case KEY_LOCATION:
+         //Location received
+         APP_LOG(APP_LOG_LEVEL_INFO, "processing %d => %s", key, t->value->cstring);
+         snprintf(location_buffer, sizeof("123456789012345678901234567890"), string_value);
+         text_layer_set_text(text_layer4, (char*) &location_buffer);
+         persist_write_data(KEY_LOCATION, string_value, sizeof(string_value));
+         break;
+      case KEY_TEMPERATURE:
+         //Temperature received
+         snprintf(location_buffer, sizeof("Temperature: XX \u00B0C"), "Temperature: %d \u00B0C", value);
+         text_layer_set_text(text_layer3, (char*) &location_buffer);
+         break;
+   }
+}
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  APP_LOG(APP_LOG_LEVEL_INFO, "Message received!");
+   (void) context;
+   APP_LOG(APP_LOG_LEVEL_INFO, "Message received!");
+
+   //Get data
+   Tuple *t = dict_read_first(iterator);
+   Tuple *data = dict_find(iterator, KEY_LOCATION);
+   if (data != NULL) {  
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "[DBUG] in_recv_handler - NONEMPTY TUPLE");
+   } else { 
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "[DBUG] in_recv_handler - EMPTY TUPLE"); 
+   }
+
+   while(t != NULL)
+   {
+      process_tuple(t);
+
+      //Get next
+      t = dict_read_next(iterator);
+   }
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -42,6 +96,9 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
+static void appmsg_in_dropped(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "In dropped: %i", reason);
+}
 
 char *itoa(int num) {
   static char buff[20] = {};
@@ -101,7 +158,15 @@ void handle_init(void) {
 	text_layer_set_font(text_layer3, fonts_get_system_font(FONT_KEY_GOTHIC_18));
 	text_layer_set_text_alignment(text_layer3, GTextAlignmentCenter);
 	
-	text_layer_set_text(text_layer4, "Waiting...");
+  
+  char string_value[32];
+  persist_read_data(KEY_LOCATION, string_value, sizeof(string_value));
+  if ( string_value != NULL) {
+     snprintf(location_buffer, sizeof("123456789012345678901234567890"), string_value);
+     text_layer_set_text(text_layer4, (char*) &location_buffer);
+  } else {
+     text_layer_set_text(text_layer4, "Waiting...");
+  }
 	text_layer_set_font(text_layer4, fonts_get_system_font(FONT_KEY_GOTHIC_18));
 	text_layer_set_text_alignment(text_layer4, GTextAlignmentCenter);
 	
@@ -118,6 +183,9 @@ void handle_init(void) {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
+  app_message_register_inbox_dropped(appmsg_in_dropped);
+
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 
   // Push the window
 	window_stack_push(window, true);
