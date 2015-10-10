@@ -16,6 +16,15 @@ enum {
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
    text_layer_set_text(text_layer4, "Select");
+
+   DictionaryIterator *iter;
+   app_message_outbox_begin(&iter);
+
+		// Add a key-value pair
+		dict_write_uint8(iter, KEY_LOCATION, 42);
+
+		// Send the message!
+		app_message_outbox_send();
 }
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -192,6 +201,7 @@ void handle_init(void) {
 	
 	// App Logging!
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "Just pushed a window!");
+
 }
 
 void handle_deinit(void) {

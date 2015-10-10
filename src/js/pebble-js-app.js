@@ -3,6 +3,13 @@ var options = {};
 
 Pebble.addEventListener("ready", function() {
   console.log("ready called!");
+
+  var temp = localStorage.getItem("options");
+  if (temp && temp !== null) {
+     console.log(JSON.stringify(temp));
+     options = JSON.parse(temp);
+  }
+  console.log(JSON.stringify(options));
   initialized = true;
 });
 
@@ -13,7 +20,7 @@ Pebble.addEventListener("showConfiguration", function() {
 });
 
 Pebble.addEventListener("appmessage", function(e) {
-   console.log('appmessage: ', e);
+   console.log('appmessage: ', JSON.stringify(e));
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
@@ -28,6 +35,7 @@ Pebble.addEventListener("webviewclosed", function(e) {
     console.log("Options = " + JSON.stringify(options));
     if (options.name && options.name !== "") {
        var dict = {"KEY_LOCATION": options.name};
+       localStorage.setItem("options", JSON.stringify(options));
     }
   } else {
     console.log("Cancelled");
