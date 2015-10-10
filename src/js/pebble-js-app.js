@@ -8,11 +8,11 @@ Pebble.addEventListener("ready", function() {
 
 Pebble.addEventListener("showConfiguration", function() {
   console.log("showing configuration");
-  Pebble.openURL('http://assets.getpebble.com.s3-website-us-east-1.amazonaws.com/pebble-js/configurable.html?'+encodeURIComponent(JSON.stringify(options)));
+  Pebble.openURL('https://one15digital.com/pebble/'+ encodeURIComponent(JSON.stringify(options)));
 });
 
 Pebble.addEventListener("webviewclosed", function(e) {
-  console.log("configuration closed");
+  console.log("configuration closed: ", e);
   // webview closed
   //Using primitive JSON validity and non-empty check
   if (e.response.charAt(0) == "{" && e.response.slice(-1) == "}" && e.response.length > 5) {
@@ -21,4 +21,13 @@ Pebble.addEventListener("webviewclosed", function(e) {
   } else {
     console.log("Cancelled");
   }
+
+  var dict = { "name": "dwa" };
+
+  // Send settings to Pebble watchapp
+  Pebble.sendAppMessage(dict, function(){
+     console.log('Sent config data to Pebble');
+  }, function() {
+     console.log('Failed to send config data!');
+  });
 });

@@ -1,8 +1,6 @@
 {
     "appKeys": {},
-    "capabilities": [
-        "configurable"
-    ],
+    "capabilities": [ "configurable" ],
     "companyName": "dave.albert@gmail.com",
     "longName": "HelloWorld",
     "projectType": "native",
